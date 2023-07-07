@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login Page</title>
+
+</head>
+<link rel="stylesheet" href="style1.css">
+
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Login</button>
+            </div>
+            <div class="form-group">
+                <button type="button" class="google-btn">
+                    <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google Icon">
+                    Sign in with Google
+                </button>
+            </div>
+        </form>
+    </div>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        function signInWithGoogle() {
+            google.accounts.id.initialize({
+                client_id: '267054957981-noltcod761u88cj1sj8q5e642jfo8p4v.apps.googleusercontent.com',
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.prompt();
+        }
+
+        function handleCredentialResponse(response) {
+            if (response.credential) {
+                var username = response.credential.id;
+                // Perform any additional actions with the signed-in user
+                // e.g., send the username to the server for authentication
+                console.log('Signed in as: ' + username);
+            } else {
+                console.log('Error: ' + response.error);
+            }
+        }</script>
+    <script src="login1.js"></script>
+</body>
+
+</html>
