@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User - Flight Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 100px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .no-results {
+            text-align: center;
+            font-weight: bold;
+            color: #ff0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Flight Booking</h2>
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="source">Source</label>
+                <input type="text" id="source" name="source" required>
+            </div>
+            <div class="form-group">
+                <label for="destination">Destination</label>
+                <input type="text" id="destination" name="destination" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Search Flights</button>
+            </div>
+        </form>
+
+        <table id="flightResults" style="display: none;"></table>
+        <div id="noResultsMessage" class="no-results" style="display: none;">No flights found.</div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var source = document.getElementById('source').value;
+            var destination = document.getElementById('destination').value;
+            var date = document.getElementById('date').value;
+
+            // Perform flight search based on the entered details
+            searchFlights(source, destination, date);
+        });
+
+        function searchFlights(source, destination, date) {
+            var apiUrl = "https://api.flightapi.io/roundtrip/64a7571ea12b580eaa6a13b1/HAN/SGN/2022-04-10/2022-04-12/1/0/1/Economy/USD"; // Replace with your API endpoint
+
+            fetch(apiUrl)
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .then(function (data) {
+                    var searchResults = data.filter(function (flight) {
+                        return (
+                            flight.source.toLowerCase() === source.toLowerCase() &&
+                            flight.destination.toLowerCase() === destination.toLowerCase() &&
+                            flight.date === date
+                        );
+                    });
+                    displayFlightResults(searchResults);
+                })
+                .catch(function (error) {
+                    console.log('Error:', error.message);
+                });
+        }
+
+        function displayFlightResults(flights) {
+            var table = document.getElementById('flightResults');
+            var noResultsMessage = document.getElementById('noResultsMessage');
+
+            table.style.display = 'none'; // Hide the table initially
+            noResultsMessage.style.display = 'none'; // Hide the no results message
+
+            // Clear existing table rows
+            while (table.firstChild) {
+                table.removeChild(table.firstChild);
+            }
+
+            // If no flights found, display a message
+            if (flights.length === 0) {
+                noResultsMessage.style.display = 'block';
+            } else {
+                // Create table headers
+                var headerRow = document.createElement('tr');
+                var headers = ['Flight ID', 'Source', 'Destination', 'Date', 'Time', 'Seats'];
+                headers.forEach(function (header) {
+                    var th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                table.appendChild(headerRow);
+
+                // Create table rows for flights
+                flights.forEach(function (flight) {
+                    var row = document.createElement('tr');
+                    var columns = [
+                        flight.id,
+                        flight.source,
+                        flight.destination,
+                        flight.date,
+                        flight.time,
+                        flight.seats
+                    ];
+                    columns.forEach(function (column) {
+                        var td = document.createElement('td');
+                        td.textContent = column;
+                        row.appendChild(td);
+                    });
+                    table.appendChild(row);
+                });
+
+                table.style.display = 'table'; // Show the table with flight results
+            }
+        }
+    </script>
+</body>
+
+</html>
